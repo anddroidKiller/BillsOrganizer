@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@null"
+    >
+
+
+<LinearLayout
+         android:layout_width="fill_parent"
+         android:layout_height="fill_parent"
+         android:orientation="vertical" >
+
+
+    <Spinner
+        android:id="@+id/companies_list_insertbill_spinner"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_gravity="center"
+        android:foregroundGravity="left"
+        />
+
+    <LinearLayout
+         android:layout_width="fill_parent"
+         android:layout_height="fill_parent"
+         android:gravity="center"
+         android:orientation="horizontal">
+
+         <Button
+             android:id="@+id/date_from_picker_insertbill"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:drawableLeft="@drawable/calender"
+             android:text="@string/from_date_text"
+             android:background="@drawable/button_date"
+             android:padding="@dimen/btn_date"
+             android:drawablePadding="@dimen/btn_date"
+             android:layout_margin="@dimen/btn_date" />
+
+        <Button
+            android:id="@+id/date_to_picker_insertbill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_date"
+            android:padding="@dimen/btn_date"
+            android:drawablePadding="@dimen/btn_date"
+            android:text="@string/to_date_text"
+            android:drawableLeft="@drawable/calender"
+            android:layout_margin="@dimen/btn_margin_right_left" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+
+        <EditText
+            android:id="@+id/amount_EditText"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:inputType="number"
+            android:textColorHint="@color/black"
+            android:hint="Amount Of Bill"
+            android:textColor="@color/black" />
+
+        <CheckBox
+            android:id="@+id/checkbox_paid"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/btn_margin_right_left"
+            android:text="@string/paid_text"
+            android:layout_gravity="center"
+            android:textSize="@dimen/sub_title_size"/>
+
+    </LinearLayout>
+
+    <ImageButton
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@null"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/noimagefound"
+        />
+
+    <Button
+        android:id="@+id/submit_insert_new_bill_button"
+        style="@style/Submit_Button_Style"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="@string/submit" />
+
+    </LinearLayout>
+</ScrollView>

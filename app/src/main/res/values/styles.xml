@@ -1,0 +1,56 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+
+
+    <style name="Main_Button_Style">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:background">@color/grey</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_marginTop">@dimen/btn_margin_up_down_main</item>
+        <item name="android:layout_marginRight">@dimen/btn_margin_right_left_main</item>
+        <item name="android:layout_marginLeft">@dimen/btn_margin_right_left_main</item>
+    </style>
+
+    <style name="Submit_Button_Style">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@drawable/button_style</item>
+        <item name="android:shadowColor">#A8A8A8</item>
+        <item name="android:shadowDx">0</item>
+        <item name="android:shadowDy">0</item>
+        <item name="android:shadowRadius">5</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginTop">@dimen/btn_margin_up_down</item>
+        <item name="android:layout_marginBottom">@dimen/btn_margin_up_down</item>
+        <item name="android:paddingLeft">@dimen/title_margin_top</item>
+        <item name="android:paddingRight">@dimen/title_margin_top</item>
+    </style>
+
+    <style name="Settings_Button_Style">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:background">@color/turquize</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_marginTop">@dimen/btn_margin_up_down_settings</item>
+        <item name="android:layout_marginRight">@dimen/btn_margin_right_left_settings</item>
+        <item name="android:layout_marginLeft">@dimen/btn_margin_right_left_settings</item>
+    </style>
+
+    <style name="Landscape_camera">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+</resources>

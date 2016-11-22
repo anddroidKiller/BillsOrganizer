@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@null">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal">
+
+        <Spinner
+            android:id="@+id/companies_list_viewreports_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:foregroundGravity="center" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/date_from_picker_viewreports"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/calender"
+            android:text="@string/from_date_text"
+            android:background="@drawable/button_date"
+            android:padding="@dimen/btn_date"
+            android:drawablePadding="@dimen/btn_date"
+            android:layout_margin="@dimen/btn_margin_right_left" />
+
+        <Button
+            android:id="@+id/date_to_picker_viewreports"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/button_date"
+            android:padding="@dimen/btn_date"
+            android:drawablePadding="@dimen/btn_date"
+            android:text="@string/to_date_text"
+            android:drawableLeft="@drawable/calender"
+            android:layout_margin="@dimen/btn_date" />
+
+        <CheckBox
+            android:id="@+id/checkbox_paid"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/paid_text"
+            android:layout_gravity="center"
+            android:textSize="@dimen/sub_title_size"/>
+
+    </LinearLayout>
+
+         <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:gravity="center"
+             android:orientation="horizontal">
+
+         <RadioGroup
+             android:id="@+id/radioGroupTables"
+             android:layout_gravity="center"
+             android:orientation="horizontal"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content" >
+
+             <RadioButton
+                 android:id="@+id/graphRadioButton"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="@string/chart" />
+
+             <RadioButton
+                 android:id="@+id/chartRadioButton"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:checked="true"
+                 android:text="@string/gragh" />
+
+         </RadioGroup>
+
+
+             <Button
+                 android:id="@+id/submit_viewreports"
+                 style="@style/Submit_Button_Style"
+                 android:layout_marginLeft="@dimen/btn_margin_right_left_main"
+                 android:layout_width="wrap_content"
+                 android:layout_height="match_parent"
+                 android:text="@string/submit" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/chart1"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:layout_margin="@dimen/btn_margin_right_left"
+          />
+
+        <com.github.mikephil.charting.charts.ScatterChart
+            android:id="@+id/chart2"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:layout_marginTop="@dimen/btn_margin_right_left"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+</ScrollView>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/background_activity"
+    android:keepScreenOn="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+
+        <Button
+            android:id="@+id/scan_bill_activity"
+            android:text="@string/scan_new_bill"
+            style="@style/Main_Button_Style"
+            android:layout_marginTop="@dimen/btn_margin_first_button"
+            />
+
+        <Button
+            android:id="@+id/insert_bill_activity"
+            android:text="@string/insert_new_bill"
+            style="@style/Main_Button_Style"/>
+
+        <Button
+            android:id="@+id/view_edit_bills_activity"
+            android:text="@string/view_edit_bills"
+            style="@style/Main_Button_Style"/>
+
+        <Button
+            android:id="@+id/view_reports_activity"
+            android:text="@string/view_reports"
+            style="@style/Main_Button_Style"/>
+
+        <Button
+            android:id="@+id/settings_activity"
+            android:text="@string/settings"
+            style="@style/Main_Button_Style"/>
+
+        <ImageView
+            android:id="@+id/imageView_sukilogo"
+            android:src="@drawable/bills_organizer_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="128dp"
+            android:layout_marginTop="@dimen/btn_margin_up_down"
+            android:layout_gravity="bottom|center"/>
+
+
+    </LinearLayout>
+</ScrollView>

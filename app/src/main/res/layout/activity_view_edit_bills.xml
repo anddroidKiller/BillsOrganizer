@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_activity"
+        android:orientation="vertical" >
+
+    <Spinner
+        android:id="@+id/companies_list_viewbills_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:foregroundGravity="center"
+        />
+
+<LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <Button
+        android:id="@+id/date_from_picker_viewbills"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableRight="@drawable/calender"
+        android:text="@string/from_date_text"
+        android:background="@drawable/button_date"
+        android:paddingLeft="@dimen/btn_date"
+        android:paddingRight="@dimen/btn_date"
+        android:drawablePadding="@dimen/btn_date"
+        android:layout_margin="@dimen/btn_date" />
+
+    <Button
+        android:id="@+id/date_to_picker_viewbills"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableRight="@drawable/calender"
+        android:text="@string/to_date_text"
+        android:background="@drawable/button_date"
+        android:paddingEnd="@dimen/btn_margin_right_left"
+        android:drawablePadding="@dimen/btn_date"
+         />
+
+    <Button
+        android:id="@+id/submit_viewbills"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Submit_Button_Style"
+        android:padding="@null"
+        android:layout_margin="@dimen/btn_date"
+        android:text="@string/submit"/>
+
+
+
+</LinearLayout>
+
+
+
+        <ExpandableListView
+            android:id = "@+id/bills_table_listview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+    </LinearLayout>
