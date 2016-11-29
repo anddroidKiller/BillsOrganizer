@@ -6,8 +6,12 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-feature android:name="android.hardware.camera" />
+    <uses-permission android:name="android.permission.ACTION_IMAGE_CAPTURE" />
+    <uses-permission android:name="android.permission.ACTION_GET_CONTENT" />
+
+
+    <uses-feature android:name="android.hardware.camera"
+        android:required="true" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-permission android:name="android.permission.SET_DEBUG_APP"/>
     <uses-permission android:name="android.permission.FLASHLIGHT" />
@@ -25,7 +29,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="application.Activities.loadingActivity"></activity>
+        <activity android:name="application.Activities.loadingActivity">
+
+
+        </activity>
         <activity android:name="application.Activities.mainActivity" />
         <activity
             android:name="application.Activities.signupActivity"
@@ -46,19 +53,16 @@
             android:name="application.Activities.viewReportsActivity"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name="application.Activities.scanNewBillActivity"
-            android:windowSoftInputMode="stateHidden">
-        </activity>
-        <activity
             android:name="application.Activities.openCvTest"
             android:screenOrientation="portrait">
-
-        </activity>
-        <activity android:name="application.Activities.ScanImgActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name="application.Activities.scanNewBillActivity"
+            android:exported="true">
+
         </activity>
 
     
