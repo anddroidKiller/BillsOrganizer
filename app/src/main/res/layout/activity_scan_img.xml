@@ -20,15 +20,29 @@
         <LinearLayout android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Original:"/>
+            android:text="Result:"/>
+
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
                 android:id="@+id/ivImage" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="step0:"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:id="@+id/step0" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -67,28 +81,19 @@
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
                 android:id="@+id/step4" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="HoughLinesP:"/>
+
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
                 android:id="@+id/step5" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="draw contours:"/>
+
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="0.5"
                 android:id="@+id/step6" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="draw contours:"/>
+
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

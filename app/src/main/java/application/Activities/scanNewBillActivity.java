@@ -48,14 +48,14 @@ import billsorganizer.billsorganizer.R;
 
 public class scanNewBillActivity extends AppCompatActivity {
 
-static int openCvReady = 0;
+    static int openCvReady = 0;
 
     BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this){
         @Override
         public void onManagerConnected(int status) {
             switch(status){
                 case BaseLoaderCallback.SUCCESS:{
-                   // javaCameraView.enableView();
+                    // javaCameraView.enableView();
                     openCvReady = 1;
                     break;
                 }
@@ -88,7 +88,7 @@ static int openCvReady = 0;
     Button bClickImage, bLoadImage;
     Mat srcOrig,src;
     static int scaleFactor = 0;
-
+    Bitmap bitmap;
     public boolean hasPermissionInManifest(Context context, String permissionName) {
         final String packageName = context.getPackageName();
         try {
@@ -176,12 +176,6 @@ static int openCvReady = 0;
                         srcOrig = new Mat(selectedImage.
                                 getHeight(), selectedImage.
                                 getWidth(), CvType.CV_8UC4);
-
-                 //   Mat mImgTranspose = new Mat(i1, i, CvType.CV_8UC4);
-                 //    Core.transpose(mRgbaMat,mImgTranspose);
-                 //    Imgproc.resize(mImgTranspose, mImgF, mImgF.size(), 0,0, 0);
-                 //    Core.flip(mImgF, mRgbaMat, 1 );
-
                         Imgproc.cvtColor(srcOrig, srcOrig,
                                 Imgproc.COLOR_BGR2RGB);
                         Utils.bitmapToMat(selectedImage, srcOrig);
@@ -190,14 +184,23 @@ static int openCvReady = 0;
 
                         src = new Mat();
                         Imgproc.resize(srcOrig, src, new
-                                Size(srcOrig.rows() / scaleFactor,
-                                srcOrig.cols() / scaleFactor));
+                                Size(srcOrig.cols() / scaleFactor,
+                                srcOrig.rows() / scaleFactor));
+
+                        ImageView step5 = (ImageView) findViewById(R.id.step0);
+                        Bitmap bitmap = Bitmap.createBitmap(src.cols(), src.rows(),
+                                Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(src, bitmap);
+                        step5.setImageBitmap(bitmap);
+
                         Imgproc.GaussianBlur(src, src,
                                 new Size(5, 5), 1);
                         getpage();
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -223,8 +226,8 @@ static int openCvReady = 0;
                             iv.setImageBitmap(selectedImage);
 
                             //step2.setImageBitmap(selectedImage);
-                           // step3.setImageBitmap(selectedImage);
-                           // step4.setImageBitmap(selectedImage);
+                            // step3.setImageBitmap(selectedImage);
+                            // step4.setImageBitmap(selectedImage);
 
                             // MediaStore.Images.Media.insertImage(getContentResolver(), yourBitmap, yourTitle, yourDescription);
 
@@ -237,17 +240,23 @@ static int openCvReady = 0;
                             srcOrig = new Mat(selectedImage.getHeight(), selectedImage.getWidth(), CvType.CV_8UC1);
                             Utils.bitmapToMat(selectedImage, srcOrig);
 
-
-
                             src = new Mat();
 
                             scaleFactor = calcScaleFactor(
                                     srcOrig.rows(), srcOrig.cols());
 
                             Imgproc.resize(srcOrig, src, new
-                                    Size(srcOrig.rows() / scaleFactor,
-                                    srcOrig.cols() / scaleFactor));
-                          getpage();
+                                    Size(srcOrig.cols() / scaleFactor,
+                                    srcOrig.rows() / scaleFactor));
+
+                            boolean res = getpage();
+
+                            if(res)
+                                    ivImage.setImageBitmap(bitmap);
+                             else{
+                                    Toast.makeText(getApplicationContext(),
+                                            errorMsg, Toast.LENGTH_LONG).show();
+                                }
 
                         }
                     }catch(FileNotFoundException e){
@@ -258,13 +267,12 @@ static int openCvReady = 0;
         }
     }
 
-    void getpage() {
+    boolean getpage() {
 
         ImageView step1 = (ImageView) findViewById(R.id.step1);
         ImageView step2 = (ImageView) findViewById(R.id.step2);
         ImageView step3 = (ImageView) findViewById(R.id.step3);
         ImageView step4 = (ImageView) findViewById(R.id.step4);
-        ImageView step5 = (ImageView) findViewById(R.id.step5);
         ImageView step6 = (ImageView) findViewById(R.id.step6);
         ImageView step7 = (ImageView) findViewById(R.id.step7);
 
@@ -416,17 +424,19 @@ static int openCvReady = 0;
 
         if(corners.size() != 4){
             errorMsg = "Cannot detect perfect corners";
-            //return null;
+            return false;
 
         }
-        sortCorners(corners);// sort to 0-top_left , 1-top_right , 2-bottom_right, 3-bottom_left
+
+        sortCorners(corners);// sort to 0-top_left , 1-top_right , 2-bottom_, 3-bottom_left
+
 
         double top = Math.sqrt(Math.pow(corners.get(0).x -
                 corners.get(1).x, 2) + Math.pow(corners.get(0).y -
                 corners.get(1).y, 2));
         double right = Math.sqrt(Math.pow(corners.get(1).x -
-                corners.get(2).x, 2) + Math.pow(corners.get(1).y -
-                corners.get(2).y, 2));
+                corners.get(3).x, 2) + Math.pow(corners.get(1).y -
+                corners.get(3).y, 2));
         double bottom = Math.sqrt(Math.pow(corners.get(2).x -
                 corners.get(3).x, 2) + Math.pow(corners.get(2).y -
                 corners.get(3).y, 2));
@@ -436,11 +446,12 @@ static int openCvReady = 0;
         Mat quad = Mat.zeros(new Size(Math.max(top, bottom),
                 Math.max(left, right)), CvType.CV_8UC3);
 
+
         ArrayList<Point> result_pts = new ArrayList<Point>();
         result_pts.add(new Point(0, 0));
         result_pts.add(new Point(quad.cols(), 0));
-        result_pts.add(new Point(quad.cols(), quad.rows()));
         result_pts.add(new Point(0, quad.rows()));
+        result_pts.add(new Point(quad.cols(), quad.rows()));
 
         Mat cornerPts = Converters.vector_Point2f_to_Mat(corners);
         Mat resultPts = Converters.vector_Point2f_to_Mat(result_pts);
@@ -450,28 +461,30 @@ static int openCvReady = 0;
                 quad.size());
 
 
-        Imgproc.cvtColor(quad, quad, Imgproc.COLOR_BGR2RGBA);
 
 
-
-        Bitmap bitmap = Bitmap.createBitmap(quad.cols(), quad.rows(),
+         bitmap = Bitmap.createBitmap(quad.cols(), quad.rows(),
                 Bitmap.Config.ARGB_8888);
+
         Utils.matToBitmap(quad, bitmap);
 
-        if(bitmap!=null) {
-            ivImage.setImageBitmap(bitmap);
-        } else if (errorMsg != null){
-            Toast.makeText(getApplicationContext(),
-                    errorMsg, Toast.LENGTH_SHORT).show();
-        }
 
-        //Imgproc.circle(drawing,corners.get(0),22,new Scalar(50));
-         //Imgproc.circle(drawing,corners.get(1),22,new Scalar(100));
-         //Imgproc.circle(drawing,corners.get(2),22,new Scalar(150));
-         //Imgproc.circle(drawing,corners.get(3),22,new Scalar(200));
-         //Bitmap bitmap1 = Bitmap.createBitmap(drawing.cols(), drawing.rows(), Bitmap.Config.ARGB_8888);
-         //Utils.matToBitmap(drawing, bitmap1);
 
+        return true;
+
+
+        /*
+        Imgproc.drawMarker(drawing,corners.get(0),new Scalar(0,0,255),10,10,10,10);
+        Imgproc.drawMarker(drawing,corners.get(1),new Scalar(0,25,255),10,10,10,10);
+        Imgproc.drawMarker(drawing,corners.get(2),new Scalar(0,0,255),10,10,10,10);
+        Imgproc.drawMarker(drawing,corners.get(4),new Scalar(0,0,255),10,10,10,10);
+        Imgproc.circle(drawing,corners.get(0),22,new Scalar(50));
+        Imgproc.circle(drawing,corners.get(1),22,new Scalar(100));
+        Imgproc.circle(drawing,corners.get(2),22,new Scalar(150));
+        Imgproc.circle(drawing,corners.get(3),22,new Scalar(200));
+        Bitmap bitmap1 = Bitmap.createBitmap(drawing.cols(), drawing.rows(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(drawing, bitmap1);
+*/
     }
 
     private static int calcScaleFactor(int rows, int cols){
@@ -527,8 +540,9 @@ static int openCvReady = 0;
             bottom_right.y *= scaleFactor;
             corners.add(top_left);
             corners.add(top_right);
-            corners.add(bottom_right);
             corners.add(bottom_left);
+            corners.add(bottom_right);
+
         }
     }
 
