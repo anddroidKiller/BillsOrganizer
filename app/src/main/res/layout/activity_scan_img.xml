@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_scan_img"
     android:layout_width="match_parent"
@@ -17,107 +18,394 @@
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true">
-        <LinearLayout android:orientation="vertical"
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+<LinearLayout android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Result:"/>
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:id="@+id/ivImage" />
-
-
-            <TextView
+            <LinearLayout android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="step0:"/>
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:id="@+id/step0" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="k-means clustering with two clusters:"/>
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:id="@+id/step1" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Grayscale:"/>
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:id="@+id/step2" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Canny:"/>
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:id="@+id/step3" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="draw contours:"/>
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:id="@+id/step4" />
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:id="@+id/step5" />
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:id="@+id/step6" />
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:id="@+id/step7" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button
-                    android:layout_width="match_parent"
+                android:gravity="center">
+                <Switch
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
-                    android:id="@+id/bClickImage"
-                    android:text="Click image"/>
-                <Button
-                    android:layout_width="match_parent"
+                    android:id="@+id/logoOrForm"/>
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.5"
-                    android:id="@+id/bLoadImage"
-                    android:text="Load image"/>
+                    android:text="CheckMatch/ScanDoc"
+                    android:textSize="15dp"/>
             </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
 
+
+<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:id="@+id/bClickImage"
+            android:text="Click image"/>
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:id="@+id/bLoadImage"
+            android:text="Load image"/>
+    </LinearLayout>
+
+</LinearLayout>
+
+   <!-- CheckMatch -->   <!-- CheckMatch -->   <!-- CheckMatch -->   <!-- CheckMatch -->   <!-- CheckMatch -->
+        <LinearLayout android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/checkMatchLayout"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="25dp"
+                android:textAlignment="center"
+                android:text="Check Match"/>
+
+
+            <ImageView
+                android:layout_weight="0.5"
+                android:layout_width="208dp"
+                android:layout_height="match_parent"
+                android:id="@+id/logo"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="company"
+                android:textSize="20dp"
+                android:id="@+id/companydp"
+                android:layout_weight="0.5"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="company"
+                android:textSize="20dp"
+                android:id="@+id/companysp"
+                android:layout_weight="0.5"/>
+            <LinearLayout android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="5dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="hot"
+                        android:textSize="20dp"
+                        android:layout_weight="0.5"/>
+                    <ImageView
+                        android:layout_weight="0.5"
+                        android:layout_width="208dp"
+                        android:layout_height="match_parent"
+                        android:id="@+id/logo1"
+                        app:srcCompat="@drawable/hotlogo" />
+                </LinearLayout>
+
+                <TextView
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dot Product Value: "
+                    android:textSize="20dp"
+                    android:id="@+id/dpVal1"
+                    android:layout_weight="0.5"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Subtract pixels: "
+                    android:id="@+id/spVal1"
+                    android:textSize="20dp"
+                    android:layout_weight="0.5"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="isracard"
+                        android:textSize="20dp"
+                        android:layout_weight="0.5"/>
+                    <ImageView
+                        android:layout_weight="0.5"
+                        android:layout_width="208dp"
+                        android:layout_height="match_parent"
+                        android:id="@+id/logo2"
+                        app:srcCompat="@drawable/isracartlogo" />
+                </LinearLayout>
+
+                <TextView
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dot Product Value: "
+                    android:textSize="20dp"
+                    android:id="@+id/dpVal2"
+                    android:layout_weight="0.5"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Subtract pixels: "
+                    android:id="@+id/spVal2"
+                    android:textSize="20dp"
+                    android:layout_weight="0.5"/>
+
+            </LinearLayout>
+            <LinearLayout android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="leumi"
+                        android:textSize="20dp"
+                        android:layout_weight="0.5"/>
+                    <ImageView
+                        android:layout_weight="0.5"
+                        android:layout_width="208dp"
+                        android:layout_height="match_parent"
+                        android:id="@+id/logo3"
+                        app:srcCompat="@drawable/leumilogo" />
+                </LinearLayout>
+
+                <TextView
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dot Product Value: "
+                    android:textSize="20dp"
+                    android:id="@+id/dpVal3"
+                    android:layout_weight="0.5"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Subtract pixels: "
+                    android:id="@+id/spVal3"
+                    android:textSize="20dp"
+                    android:layout_weight="0.5"/>
+
+            </LinearLayout>
+            <LinearLayout android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="yes"
+                        android:textSize="20dp"
+                        android:layout_weight="0.5"/>
+                    <ImageView
+                        android:layout_weight="0.5"
+                        android:layout_width="208dp"
+                        android:layout_height="match_parent"
+                        android:id="@+id/logo4"
+                        app:srcCompat="@drawable/yeslogo" />
+                </LinearLayout>
+
+                <TextView
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dot Product Value: "
+                    android:textSize="20dp"
+                    android:id="@+id/dpVal4"
+                    android:layout_weight="0.5"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Subtract pixels: "
+                    android:id="@+id/spVal4"
+                    android:textSize="20dp"
+                    android:layout_weight="0.5"/>
+
+            </LinearLayout>
+            <LinearLayout android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="shufersal"
+                        android:textSize="20dp"
+                        android:layout_weight="0.5"/>
+                    <ImageView
+                        android:layout_weight="0.5"
+                        android:layout_width="208dp"
+                        android:layout_height="match_parent"
+                        android:id="@+id/logo5"
+                        app:srcCompat="@drawable/shufersallogo" />
+                </LinearLayout>
+
+                <TextView
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Dot Product Value: "
+                    android:textSize="20dp"
+                    android:id="@+id/dpVal5"
+                    android:layout_weight="0.5"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Subtract pixels: "
+                    android:id="@+id/spVal5"
+                    android:textSize="20dp"
+                    android:layout_weight="0.5"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- CheckMatch -->   <!-- CheckMatch -->   <!-- CheckMatch -->   <!-- CheckMatch -->   <!-- CheckMatch -->
+
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/findDoclayout"
+    android:visibility="gone">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25dp"
+        android:textAlignment="center"
+        android:text="Find Doc"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Src:"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5"
+        android:id="@+id/ivImage" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Result:"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5"
+        android:id="@+id/out" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="step0:"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5"
+        android:id="@+id/step0" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="k-means clustering with two clusters:"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5"
+        android:id="@+id/step1" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Grayscale:"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5"
+        android:id="@+id/step2" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Canny:"/>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5"
+        android:id="@+id/step3" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="draw contours:"/>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5"
+        android:id="@+id/step4" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5"
+        android:id="@+id/step5" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5"
+        android:id="@+id/step6" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.5"
+        android:id="@+id/step7" />
+</LinearLayout>
+    </LinearLayout>
+
+    </ScrollView>
 </RelativeLayout>

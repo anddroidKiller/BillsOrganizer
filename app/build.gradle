@@ -20,6 +20,7 @@ android {
 }
 
     dependencies {
+
         compile fileTree(include: ['*.jar'], dir: 'libs')
         testCompile 'junit:junit:4.12'
         compile 'com.android.support:appcompat-v7:24.1.0'
@@ -31,5 +32,8 @@ android {
         compile 'com.mcxiaoke.volley:library-aar:1.0.0'
         compile 'com.jakewharton:butterknife:6.1.0'
         compile project(':openCVLibrary310')
+        //compile project(':ScanDemoExample')
         compile files('libs/opencv-android.jar')
+        compile project(path: ':scanlibrary')
+        compile 'com.google.android.gms:play-services-appindexing:8.4.0'
     }

@@ -1,6 +1,7 @@
 package application.Activities;
 
 
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -14,11 +15,18 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.scanlibrary.*;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -29,6 +37,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.core.TermCriteria;
@@ -42,6 +51,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Vector;
 
 import billsorganizer.billsorganizer.R;
@@ -49,7 +59,7 @@ import billsorganizer.billsorganizer.R;
 public class scanNewBillActivity extends AppCompatActivity {
 
     static int openCvReady = 0;
-
+    progressBar pb;
     BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this){
         @Override
         public void onManagerConnected(int status) {
@@ -78,6 +88,7 @@ public class scanNewBillActivity extends AppCompatActivity {
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
     }
+    final private Context mContext = this;
     Context context = this.getBaseContext();
     String mCurrentPhotoPath,errorMsg;
     ImageView ivImage;
@@ -85,10 +96,13 @@ public class scanNewBillActivity extends AppCompatActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     Uri fileUri;
     final int LOAD_PHOTO = 0, CLICK_PHOTO = 1;
-    Button bClickImage, bLoadImage;
-    Mat srcOrig,src;
+    Button bClickImage, bLoadImage,newbClickImage, newbLoadImage;
+    Mat srcOrig,src,logo1Mat,logo2Mat;
     static int scaleFactor = 0;
     Bitmap bitmap;
+    Intent intent;
+    static int count = 0;
+
     public boolean hasPermissionInManifest(Context context, String permissionName) {
         final String packageName = context.getPackageName();
         try {
@@ -110,13 +124,17 @@ public class scanNewBillActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_img);
 
-        ivImage = (ImageView)findViewById(R.id.ivImage);
+       // ivImage = (ImageView)findViewById(R.id.ivImage);
+
+
         bClickImage = (Button)findViewById(R.id.bClickImage);
         bLoadImage = (Button)findViewById(R.id.bLoadImage);
+        intent = new Intent(this.getBaseContext(),ScanActivity.class);
+
+
 
         bLoadImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,10 +145,9 @@ public class scanNewBillActivity extends AppCompatActivity {
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 errorMsg = null;
                 startActivityForResult(intent, LOAD_PHOTO);
-
-
             }
         });
+
 
         bClickImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,8 +155,6 @@ public class scanNewBillActivity extends AppCompatActivity {
                 OutputStream output;
 
                 boolean i = hasPermissionInManifest(scanNewBillActivity.this,"ACTION_IMAGE_CAPTURE");
-
-
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 errorMsg = null;
                 File filePath = Environment.getExternalStorageDirectory();
@@ -149,10 +164,29 @@ public class scanNewBillActivity extends AppCompatActivity {
                 fileUri = Uri.fromFile(image);
 
 
-                Log.d("LensActivity", "File URI = " + fileUri.toString());
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+               Log.d("LensActivity", "File URI = " + fileUri.toString());
+               intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
                 // start the image capture Intent
-                startActivityForResult(intent, CLICK_PHOTO);
+               startActivityForResult(intent, CLICK_PHOTO);
+
+            }
+        });
+        final LinearLayout linearLayout1 = (LinearLayout)findViewById(R.id.findDoclayout);
+        final LinearLayout linearLayout2 = (LinearLayout)findViewById(R.id.checkMatchLayout);
+        Switch formOrLogo = (Switch) findViewById(R.id.logoOrForm);
+        formOrLogo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b) {
+                    count = -1;
+                    linearLayout1.setVisibility(View.VISIBLE);
+                    linearLayout2.setVisibility(View.GONE);
+                }
+                else {
+                    count = 0;
+                    linearLayout1.setVisibility(View.GONE);
+                    linearLayout2.setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -169,33 +203,240 @@ public class scanNewBillActivity extends AppCompatActivity {
                         InputStream stream = getContentResolver().
                                 openInputStream(
                                         data.getData());
-                        final Bitmap selectedImage =
-                                BitmapFactory.decodeStream(stream);
-                        stream.close();
-                        ivImage.setImageBitmap(selectedImage);
-                        srcOrig = new Mat(selectedImage.
-                                getHeight(), selectedImage.
-                                getWidth(), CvType.CV_8UC4);
-                        Imgproc.cvtColor(srcOrig, srcOrig,
-                                Imgproc.COLOR_BGR2RGB);
-                        Utils.bitmapToMat(selectedImage, srcOrig);
-                        scaleFactor = calcScaleFactor(
-                                srcOrig.rows(), srcOrig.cols());
+                        if (openCvReady == 1) {
+                            final Bitmap selectedImage =
+                                    BitmapFactory.decodeStream(stream);
+                            stream.close();
 
-                        src = new Mat();
-                        Imgproc.resize(srcOrig, src, new
-                                Size(srcOrig.cols() / scaleFactor,
-                                srcOrig.rows() / scaleFactor));
+                            if(count == -2){
 
-                        ImageView step5 = (ImageView) findViewById(R.id.step0);
-                        Bitmap bitmap = Bitmap.createBitmap(src.cols(), src.rows(),
-                                Bitmap.Config.ARGB_8888);
-                        Utils.matToBitmap(src, bitmap);
-                        step5.setImageBitmap(bitmap);
+                                Intent intent1 = new Intent(getBaseContext(),com.scanlibrary.ScanActivity.class);
+                                intent1.putExtra("uri", fileUri.toString() );
+                                startActivity(intent1);
+                            }
+                            if(count == -1){
+                                ImageView ivImage = (ImageView) findViewById(R.id.ivImage);
+                                ivImage.setImageBitmap(selectedImage);
+                                srcOrig = new Mat(selectedImage.
+                                        getHeight(), selectedImage.
+                                        getWidth(), CvType.CV_8UC4);
+                                Imgproc.cvtColor(srcOrig, srcOrig,
+                                        Imgproc.COLOR_BGR2RGB);
+                                Utils.bitmapToMat(selectedImage, srcOrig);
+                                scaleFactor = calcScaleFactor(
+                                        srcOrig.rows(), srcOrig.cols());
+                                src = new Mat();
+                                Imgproc.resize(srcOrig, src, new
+                                        Size(srcOrig.cols() / scaleFactor,
+                                        srcOrig.rows() / scaleFactor));
+                                Imgproc.GaussianBlur(src, src,
+                                        new Size(5, 5), 1);
 
-                        Imgproc.GaussianBlur(src, src,
-                                new Size(5, 5), 1);
-                        getpage();
+                                boolean res = getpage();
+
+                                ImageView out = (ImageView) findViewById(R.id.out);
+                                if(res)
+                                    out.setImageBitmap(bitmap);
+                                else{
+                                    Toast.makeText(getApplicationContext(),
+                                            errorMsg, Toast.LENGTH_LONG).show();
+                                }
+
+                            }else if(count == 0){
+
+                                logo1Mat = new Mat(selectedImage.
+                                        getHeight(), selectedImage.
+                                        getWidth(), CvType.CV_8UC4);
+                                /*
+                                Imgproc.cvtColor(srcOrig, srcOrig,
+                                        Imgproc.COLOR_BGR2RGB);
+*/
+                                Utils.bitmapToMat(selectedImage, logo1Mat);
+                                //img Procces
+
+                               Imgproc.cvtColor(logo1Mat, logo1Mat,Imgproc.COLOR_RGB2GRAY);
+                                //Clean
+
+                                Imgproc.blur(logo1Mat, logo1Mat, new Size(3, 3));
+                                //convert to black and white
+                                Imgproc.threshold(logo1Mat, logo1Mat, 0, 255, Imgproc.THRESH_OTSU);
+                                //Mat to BitMap
+                                int reziseCols = 60,reziseRows = 20;
+                                Imgproc.resize(logo1Mat, logo1Mat, new
+                                        Size(reziseCols,reziseRows));
+                                logo1Mat = CropLogo(logo1Mat);
+                                Imgproc.resize(logo1Mat, logo1Mat, new
+                                        Size(reziseCols,reziseRows));
+                                Bitmap bitmap = Bitmap.createBitmap(logo1Mat.cols(), logo1Mat.rows(),
+                                        Bitmap.Config.ARGB_8888);
+
+                                Utils.matToBitmap(logo1Mat,bitmap);
+                                //set on src
+                                ImageView logo = (ImageView) findViewById(R.id.logo);
+                                logo.setImageBitmap(bitmap);
+
+                                //count++;
+
+                                //logo1
+                                ImageView logo1 = (ImageView) findViewById(R.id.logo1);
+                                Bitmap bitmap1 = ((BitmapDrawable)logo1.getDrawable()).getBitmap();
+                                Mat tmp1 = new Mat();
+                                Utils.bitmapToMat(bitmap1, tmp1);
+                                Imgproc.cvtColor(tmp1, tmp1,Imgproc.COLOR_RGB2GRAY);
+                                Imgproc.blur(tmp1, tmp1, new Size(3, 3));
+                                //convert to black and white
+                                Imgproc.threshold(tmp1, tmp1, 0, 255, Imgproc.THRESH_OTSU);
+                                Imgproc.resize(tmp1, tmp1, new
+                                        Size(reziseCols,reziseRows));
+                                tmp1 = CropLogo(tmp1);
+                                Imgproc.resize(tmp1, tmp1, new
+                                        Size(reziseCols,reziseRows));
+                                //Mat to BitMap
+                                double dp1  = CompareLogoDp(tmp1,logo1Mat);
+                                TextView dpTextView1 = (TextView)findViewById(R.id.dpVal1);
+                                dpTextView1.setText("Dot Product Value : " + dp1);
+                                double sp1  = CompareLogo(tmp1,logo1Mat);
+                                TextView spTextView1 = (TextView)findViewById(R.id.spVal1);
+                                spTextView1.setText("Sub Pixels Value : " + sp1);
+
+                                double MinSub = sp1,MaxDp=dp1;
+                                String companydp = "hot",companysp ="hot";
+                                //logo2
+                                ImageView logo2 = (ImageView) findViewById(R.id.logo2);
+                                Bitmap bitmap2 = ((BitmapDrawable)logo2.getDrawable()).getBitmap();
+                                Mat tmp2 = new Mat();
+                                Utils.bitmapToMat(bitmap2, tmp2);
+                                Imgproc.cvtColor(tmp2, tmp2,Imgproc.COLOR_RGB2GRAY);
+                                Imgproc.blur(tmp2, tmp2, new Size(3, 3));
+                                //convert to black and white
+                                Imgproc.threshold(tmp2, tmp2, 0, 255, Imgproc.THRESH_OTSU);
+                                Imgproc.resize(tmp2, tmp2, new
+                                        Size(reziseCols,reziseRows));
+                                tmp2 = CropLogo(tmp2);
+                                Imgproc.resize(tmp2, tmp2, new
+                                        Size(reziseCols,reziseRows));
+                                //Mat to BitMap
+                                double dp2  = CompareLogoDp(tmp2,logo1Mat);
+                                TextView dpTextView2 = (TextView)findViewById(R.id.dpVal2);
+                                dpTextView2.setText("Dot Product Value : " + dp2);
+                                double sp2  = CompareLogo(tmp2,logo1Mat);
+                                TextView spTextView2 = (TextView)findViewById(R.id.spVal2);
+                                spTextView2.setText("Sub Pixels Value : " + sp2);
+
+                                if(dp2>MaxDp){
+                                    MaxDp = dp2;
+                                    companydp = "isracard";
+                                }
+
+                                if(sp2<MinSub){
+                                    MinSub = sp2;
+                                    companysp ="isracard";
+                                }
+
+                                //logo3
+                                ImageView logo3 = (ImageView) findViewById(R.id.logo3);
+                                Bitmap bitmap3 = ((BitmapDrawable)logo3.getDrawable()).getBitmap();
+                                Mat tmp3 = new Mat();
+                                Utils.bitmapToMat(bitmap3, tmp3);
+                                Imgproc.cvtColor(tmp3, tmp3,Imgproc.COLOR_RGB2GRAY);
+                                Imgproc.blur(tmp3, tmp3, new Size(3, 3));
+                                //convert to black and white
+                                Imgproc.threshold(tmp3, tmp3, 0, 255, Imgproc.THRESH_OTSU);
+                                Imgproc.resize(tmp3, tmp3, new
+                                        Size(reziseCols,reziseRows));
+                                tmp3 = CropLogo(tmp3);
+                                Imgproc.resize(tmp3, tmp3, new
+                                        Size(reziseCols,reziseRows));
+                                //Mat to BitMap
+                                double dp3  = CompareLogoDp(tmp3,logo1Mat);
+                                TextView dpTextView3 = (TextView)findViewById(R.id.dpVal3);
+                                dpTextView3.setText("Dot Product Value : " + dp3);
+                                double sp3  = CompareLogo(tmp3,logo1Mat);
+                                TextView spTextView3 = (TextView)findViewById(R.id.spVal3);
+                                spTextView3.setText("Sub Pixels Value : " + sp3);
+
+
+                                if(dp3>MaxDp){
+                                    MaxDp = dp3;
+                                    companydp = "leumi";
+                                }
+
+                                if(sp3<MinSub){
+                                    MinSub = sp3;
+                                    companysp ="leumi";
+                                }
+
+                                //logo4
+                                ImageView logo4 = (ImageView) findViewById(R.id.logo4);
+                                Bitmap bitmap4 = ((BitmapDrawable)logo4.getDrawable()).getBitmap();
+                                Mat tmp4 = new Mat();
+                                Utils.bitmapToMat(bitmap4, tmp4);
+                                Imgproc.cvtColor(tmp4, tmp4,Imgproc.COLOR_RGB2GRAY);
+                                Imgproc.blur(tmp4, tmp4, new Size(3, 3));
+                                //convert to black and white
+                                Imgproc.threshold(tmp4, tmp4, 0, 255, Imgproc.THRESH_OTSU);
+                                Imgproc.resize(tmp4, tmp4, new
+                                        Size(reziseCols,reziseRows));
+                                tmp4 = CropLogo(tmp4);
+                                Imgproc.resize(tmp4, tmp4, new
+                                        Size(reziseCols,reziseRows));
+                                //Mat to BitMap
+                                double dp4  = CompareLogoDp(tmp4,logo1Mat);
+                                TextView dpTextView4 = (TextView)findViewById(R.id.dpVal4);
+                                dpTextView4.setText("Dot Product Value : " + dp4);
+                                double sp4  = CompareLogo(tmp4,logo1Mat);
+                                TextView spTextView4 = (TextView)findViewById(R.id.spVal4);
+                                spTextView4.setText("Sub Pixels Value : " + sp4);
+
+                                if(dp4>MaxDp){
+                                    MaxDp = dp4;
+                                    companydp = "yes";
+                                }
+
+                                if(sp4<MinSub){
+                                    MinSub = sp4;
+                                    companysp ="yes";
+                                }
+                                //logo5
+                                ImageView logo5 = (ImageView) findViewById(R.id.logo5);
+                                Bitmap bitmap5 = ((BitmapDrawable)logo5.getDrawable()).getBitmap();
+                                Mat tmp5 = new Mat();
+                                Utils.bitmapToMat(bitmap5, tmp5);
+                                Imgproc.cvtColor(tmp5, tmp5,Imgproc.COLOR_RGB2GRAY);
+                                Imgproc.blur(tmp5, tmp5, new Size(3, 3));
+                                //convert to black and white
+                                Imgproc.threshold(tmp5, tmp5, 0, 255, Imgproc.THRESH_OTSU);
+                                Imgproc.resize(tmp5, tmp5, new
+                                        Size(reziseCols,reziseRows));
+                                tmp5 = CropLogo(tmp5);
+                                Imgproc.resize(tmp5, tmp5, new
+                                        Size(reziseCols,reziseRows));
+                                //Mat to BitMap
+                                double dp5  = CompareLogoDp(tmp5,logo1Mat);
+                                TextView dpTextView5 = (TextView)findViewById(R.id.dpVal5);
+                                dpTextView5.setText("Dot Product Value : " + dp5);
+                                double sp5  = CompareLogo(tmp5,logo1Mat);
+                                TextView spTextView5 = (TextView)findViewById(R.id.spVal5);
+                                spTextView5.setText("Sub Pixels Value : " + sp5);
+
+                                if(dp5>MaxDp) {
+                                    MaxDp = dp5;
+                                    companydp = "shufersal";
+                                }
+                                if(sp5<MinSub) {
+                                    MinSub = sp5;
+                                    companysp = "shufersal";
+                                }
+
+
+                                TextView spTextView6 = (TextView)findViewById(R.id.companydp);
+                                spTextView6.setText("Dp Matching:"+ companydp);
+                                TextView spTextView7 = (TextView)findViewById(R.id.companysp);
+                                spTextView7.setText("Sp Matching:"+companydp);
+
+
+                            }
+                        }
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } catch (IOException e) {
@@ -216,47 +457,215 @@ public class scanNewBillActivity extends AppCompatActivity {
                                     BitmapFactory.decodeStream(imageStream);
 
 
-                            // convert to bitmap:
-                            //  Bitmap bm = Bitmap.createBitmap(m.cols(), m.rows(),Bitmap.Config.ARGB_8888);
-                            //  Utils.matToBitmap(m, bm);
+                            if(count == -1){
+                                ImageView ivImage = (ImageView) findViewById(R.id.ivImage);
+                                ivImage.setImageBitmap(selectedImage);
+                                srcOrig = new Mat(selectedImage.
+                                        getHeight(), selectedImage.
+                                        getWidth(), CvType.CV_8UC4);
+                                Imgproc.cvtColor(srcOrig, srcOrig,
+                                        Imgproc.COLOR_BGR2RGB);
+                                Utils.bitmapToMat(selectedImage, srcOrig);
+                                scaleFactor = calcScaleFactor(
+                                        srcOrig.rows(), srcOrig.cols());
+                                src = new Mat();
+                                Imgproc.resize(srcOrig, src, new
+                                        Size(srcOrig.cols() / scaleFactor,
+                                        srcOrig.rows() / scaleFactor));
+                                Imgproc.GaussianBlur(src, src,
+                                        new Size(5, 5), 1);
 
-                            //   find the imageview and draw it!
-                            ImageView iv = (ImageView) findViewById(R.id.ivImage);
-
-                            iv.setImageBitmap(selectedImage);
-
-                            //step2.setImageBitmap(selectedImage);
-                            // step3.setImageBitmap(selectedImage);
-                            // step4.setImageBitmap(selectedImage);
-
-                            // MediaStore.Images.Media.insertImage(getContentResolver(), yourBitmap, yourTitle, yourDescription);
-
-
-                            //Drawable myDrawable = getResources().getDrawable(R.drawable.paper);
-
-                            //  final Bitmap selectedImage = ((BitmapDrawable) myDrawable).getBitmap();
-
-
-                            srcOrig = new Mat(selectedImage.getHeight(), selectedImage.getWidth(), CvType.CV_8UC1);
-                            Utils.bitmapToMat(selectedImage, srcOrig);
-
-                            src = new Mat();
-
-                            scaleFactor = calcScaleFactor(
-                                    srcOrig.rows(), srcOrig.cols());
-
-                            Imgproc.resize(srcOrig, src, new
-                                    Size(srcOrig.cols() / scaleFactor,
-                                    srcOrig.rows() / scaleFactor));
-
-                            boolean res = getpage();
-
-                            if(res)
-                                    ivImage.setImageBitmap(bitmap);
-                             else{
+                                boolean res = getpage();
+                                ImageView out = (ImageView) findViewById(R.id.out);
+                                if(res)
+                                    out.setImageBitmap(bitmap);
+                                else{
                                     Toast.makeText(getApplicationContext(),
                                             errorMsg, Toast.LENGTH_LONG).show();
                                 }
+
+                            }else if(count == 0){
+
+                                logo1Mat = new Mat(selectedImage.
+                                        getHeight(), selectedImage.
+                                        getWidth(), CvType.CV_8UC4);
+                                /*
+                                Imgproc.cvtColor(srcOrig, srcOrig,
+                                        Imgproc.COLOR_BGR2RGB);
+*/
+                                Utils.bitmapToMat(selectedImage, logo1Mat);
+                                //img Procces
+
+                                Imgproc.cvtColor(logo1Mat, logo1Mat,Imgproc.COLOR_RGB2GRAY);
+                                //Clean
+
+                                Imgproc.blur(logo1Mat, logo1Mat, new Size(3, 3));
+                                //convert to black and white
+                                Imgproc.threshold(logo1Mat, logo1Mat, 0, 255, Imgproc.THRESH_OTSU);
+                                //Mat to BitMap
+
+                                logo1Mat = CropLogo(logo1Mat);
+                                Imgproc.resize(logo1Mat, logo1Mat, new
+                                        Size(320,240));
+                                Bitmap bitmap = Bitmap.createBitmap(logo1Mat.cols(), logo1Mat.rows(),
+                                        Bitmap.Config.ARGB_8888);
+
+                                Utils.matToBitmap(logo1Mat,bitmap);
+                                //set on src
+                                ImageView logo = (ImageView) findViewById(R.id.logo);
+                                logo.setImageBitmap(bitmap);
+
+                                //count++;
+
+                                //logo1
+                                ImageView logo1 = (ImageView) findViewById(R.id.logo1);
+                                Bitmap bitmap1 = ((BitmapDrawable)logo1.getDrawable()).getBitmap();
+                                Mat tmp1 = new Mat();
+                                Utils.bitmapToMat(bitmap1, tmp1);
+                                Imgproc.cvtColor(tmp1, tmp1,Imgproc.COLOR_RGB2GRAY);
+                                Imgproc.blur(tmp1, tmp1, new Size(3, 3));
+                                //convert to black and white
+                                Imgproc.threshold(tmp1, tmp1, 0, 255, Imgproc.THRESH_OTSU);
+                                tmp1 = CropLogo(tmp1);
+                                Imgproc.resize(tmp1, tmp1, new
+                                        Size(320,240));
+                                //Mat to BitMap
+                                double dp1  = CompareLogoDp(tmp1,logo1Mat);
+                                TextView dpTextView1 = (TextView)findViewById(R.id.dpVal1);
+                                dpTextView1.setText("Dot Product Value : " + dp1);
+                                double sp1  = CompareLogo(tmp1,logo1Mat);
+                                TextView spTextView1 = (TextView)findViewById(R.id.spVal1);
+                                spTextView1.setText("Sub Pixels Value : " + sp1);
+
+                                double MinSub = sp1,MaxDp=dp1;
+                                String companydp = "hot",companysp ="hot";
+                                //logo2
+                                ImageView logo2 = (ImageView) findViewById(R.id.logo2);
+                                Bitmap bitmap2 = ((BitmapDrawable)logo2.getDrawable()).getBitmap();
+                                Mat tmp2 = new Mat();
+                                Utils.bitmapToMat(bitmap2, tmp2);
+                                Imgproc.cvtColor(tmp2, tmp2,Imgproc.COLOR_RGB2GRAY);
+                                Imgproc.blur(tmp2, tmp2, new Size(3, 3));
+                                //convert to black and white
+                                Imgproc.threshold(tmp2, tmp2, 0, 255, Imgproc.THRESH_OTSU);
+                                tmp2 = CropLogo(tmp2);
+                                Imgproc.resize(tmp2, tmp2, new
+                                        Size(320,240));
+                                //Mat to BitMap
+                                double dp2  = CompareLogoDp(tmp2,logo1Mat);
+                                TextView dpTextView2 = (TextView)findViewById(R.id.dpVal2);
+                                dpTextView2.setText("Dot Product Value : " + dp2);
+                                double sp2  = CompareLogo(tmp2,logo1Mat);
+                                TextView spTextView2 = (TextView)findViewById(R.id.spVal2);
+                                spTextView2.setText("Sub Pixels Value : " + sp2);
+
+                                if(dp2>MaxDp){
+                                    MaxDp = dp2;
+                                    companydp = "isracard";
+                                }
+
+                                if(sp2<MinSub){
+                                    MinSub = sp2;
+                                    companysp ="isracard";
+                                }
+
+                                //logo3
+                                ImageView logo3 = (ImageView) findViewById(R.id.logo3);
+                                Bitmap bitmap3 = ((BitmapDrawable)logo3.getDrawable()).getBitmap();
+                                Mat tmp3 = new Mat();
+                                Utils.bitmapToMat(bitmap3, tmp3);
+                                Imgproc.cvtColor(tmp3, tmp3,Imgproc.COLOR_RGB2GRAY);
+                                Imgproc.blur(tmp3, tmp3, new Size(3, 3));
+                                //convert to black and white
+                                Imgproc.threshold(tmp3, tmp3, 0, 255, Imgproc.THRESH_OTSU);
+                                tmp3 = CropLogo(tmp3);
+                                Imgproc.resize(tmp3, tmp3, new
+                                        Size(320,240));
+                                //Mat to BitMap
+                                double dp3  = CompareLogoDp(tmp3,logo1Mat);
+                                TextView dpTextView3 = (TextView)findViewById(R.id.dpVal3);
+                                dpTextView3.setText("Dot Product Value : " + dp3);
+                                double sp3  = CompareLogo(tmp3,logo1Mat);
+                                TextView spTextView3 = (TextView)findViewById(R.id.spVal3);
+                                spTextView3.setText("Sub Pixels Value : " + sp3);
+
+
+                                if(dp3>MaxDp){
+                                    MaxDp = dp3;
+                                    companydp = "leumi";
+                                }
+
+                                if(sp3<MinSub){
+                                    MinSub = sp3;
+                                    companysp ="leumi";
+                                }
+
+                                //logo4
+                                ImageView logo4 = (ImageView) findViewById(R.id.logo4);
+                                Bitmap bitmap4 = ((BitmapDrawable)logo4.getDrawable()).getBitmap();
+                                Mat tmp4 = new Mat();
+                                Utils.bitmapToMat(bitmap4, tmp4);
+                                Imgproc.cvtColor(tmp4, tmp4,Imgproc.COLOR_RGB2GRAY);
+                                Imgproc.blur(tmp4, tmp4, new Size(3, 3));
+                                //convert to black and white
+                                Imgproc.threshold(tmp4, tmp4, 0, 255, Imgproc.THRESH_OTSU);
+                                tmp4 = CropLogo(tmp4);
+                                Imgproc.resize(tmp4, tmp4, new
+                                        Size(320,240));
+                                //Mat to BitMap
+                                double dp4  = CompareLogoDp(tmp4,logo1Mat);
+                                TextView dpTextView4 = (TextView)findViewById(R.id.dpVal4);
+                                dpTextView4.setText("Dot Product Value : " + dp4);
+                                double sp4  = CompareLogo(tmp4,logo1Mat);
+                                TextView spTextView4 = (TextView)findViewById(R.id.spVal4);
+                                spTextView4.setText("Sub Pixels Value : " + sp4);
+
+                                if(dp4>MaxDp){
+                                    MaxDp = dp4;
+                                    companydp = "yes";
+                                }
+
+                                if(sp4<MinSub){
+                                    MinSub = sp4;
+                                    companysp ="yes";
+                                }
+                                //logo5
+                                ImageView logo5 = (ImageView) findViewById(R.id.logo5);
+                                Bitmap bitmap5 = ((BitmapDrawable)logo5.getDrawable()).getBitmap();
+                                Mat tmp5 = new Mat();
+                                Utils.bitmapToMat(bitmap5, tmp5);
+                                Imgproc.cvtColor(tmp5, tmp5,Imgproc.COLOR_RGB2GRAY);
+                                Imgproc.blur(tmp5, tmp5, new Size(3, 3));
+                                //convert to black and white
+                                Imgproc.threshold(tmp5, tmp5, 0, 255, Imgproc.THRESH_OTSU);
+                                tmp5 = CropLogo(tmp5);
+                                Imgproc.resize(tmp5, tmp5, new
+                                        Size(320,240));
+                                //Mat to BitMap
+                                double dp5  = CompareLogoDp(tmp5,logo1Mat);
+                                TextView dpTextView5 = (TextView)findViewById(R.id.dpVal5);
+                                dpTextView5.setText("Dot Product Value : " + dp5);
+                                double sp5  = CompareLogo(tmp5,logo1Mat);
+                                TextView spTextView5 = (TextView)findViewById(R.id.spVal5);
+                                spTextView5.setText("Sub Pixels Value : " + sp5);
+
+                                if(dp5>MaxDp) {
+                                    MaxDp = dp5;
+                                    companydp = "shufersal";
+                                }
+                                if(sp5<MinSub) {
+                                    MinSub = sp5;
+                                    companysp = "shufersal";
+                                }
+
+
+                                TextView spTextView6 = (TextView)findViewById(R.id.companydp);
+                                spTextView6.setText("Dp Matching:"+ companydp);
+                                TextView spTextView7 = (TextView)findViewById(R.id.companysp);
+                                spTextView7.setText("Sp Matching:"+companydp);
+
+
+                            }
 
                         }
                     }catch(FileNotFoundException e){
@@ -267,13 +676,185 @@ public class scanNewBillActivity extends AppCompatActivity {
         }
     }
 
+    Mat CropLogo(Mat srcLogo) {
+
+        int top = 0,bottom = 0,left = 0,right = 0;
+        double currPix = 0.0, averageBack;
+        Mat CropLogoMat = new Mat(srcLogo.rows(), srcLogo.cols(), CvType.CV_8UC1);
+        averageBack = srcLogo.get(0,0)[0];
+
+        //findTop
+        for (int i = 0; i < srcLogo.rows(); i++) {
+            for (int j = 0; j < srcLogo.cols(); j++) {
+                currPix = srcLogo.get(i,j)[0];
+                if(Math.abs(currPix - averageBack) < 10){
+                    averageBack = (averageBack+currPix)/2;
+                }else
+
+                {
+                    top = i;
+                    j = srcLogo.cols();
+                    i = srcLogo.rows();
+                }
+            }
+        }
+        Rect roi = new Rect(0,top,srcLogo.cols(),srcLogo.rows()-top);
+        Mat cropped = new Mat(srcLogo, roi);
+
+
+        //findBottom
+
+        averageBack = cropped.get(cropped.rows()-1,0)[0];
+        for (int i = cropped.rows()-1; i > 0; i--) {
+            for (int j = 0; j < cropped.cols(); j++) {
+                currPix = cropped.get(i,j)[0];
+                if(Math.abs(currPix - averageBack) < 10){
+                    averageBack = (averageBack+currPix)/2;
+                }else
+
+                {
+                    bottom = i;
+                    j = cropped.cols();
+                    i = 0;
+                }
+            }
+        }
+
+         roi = new Rect(0,0,cropped.cols(),bottom);
+         cropped = new Mat(cropped, roi);
+
+
+        //findRight
+        averageBack = cropped.get(0,0)[0];
+         for(int j = 0; j < cropped.cols(); j++) {
+              for (int i = 0; i < cropped.rows(); i++) {
+                currPix = cropped.get(i,j)[0];
+                if(Math.abs(currPix - averageBack) < 10){
+                    averageBack = (averageBack+currPix)/2;
+                }
+                else
+                {
+                    right = j;
+                    j = cropped.cols();
+                    i = cropped.rows();
+                }
+            }
+        }
+
+        roi = new Rect(right,0,cropped.cols() - right,cropped.rows());
+        cropped = new Mat(cropped, roi);
+
+
+        //findLeft
+        averageBack = cropped.get(0,cropped.cols()-1)[0];
+        for(int j = cropped.cols()-1; j > 0; j--) {
+            for (int i = 0; i < cropped.rows(); i++) {
+                currPix = cropped.get(i,j)[0];
+                if(Math.abs(currPix - averageBack) < 10){
+                    averageBack = (averageBack+currPix)/2;
+                }
+                else
+                {
+                    left = j;
+                    j = 0;
+                    i = cropped.rows();
+                }
+            }
+        }
+
+        roi = new Rect(0,0,left,cropped.rows());
+        cropped = new Mat(cropped, roi);
+
+
+
+
+       // Bitmap bitmap1 = Bitmap.createBitmap(cropped.cols(), cropped.rows(),
+         //       Bitmap.Config.ARGB_8888);
+
+      //  Utils.matToBitmap(cropped,bitmap1);
+
+        //set on src
+       // ImageView logo2 = (ImageView) findViewById(R.id.ivImage);
+        //logo.setImageBitmap(bitmap1);
+
+        return cropped;
+    }
+    double CompareLogoDp(Mat logoMat1,Mat logoMat2) {
+
+        double[] pix1, pix2, pix3;
+        double sum = 0.0;
+
+        for (int i = 0; i < Math.min(logoMat1.rows(), logoMat2.rows()); i++) {
+            for (int j = 0; j < Math.min(logoMat1.cols(), logoMat2.cols()); j++) {
+                pix1 = logoMat1.get(i, j); //R,G,B,(A-transprant)
+                pix2 = logoMat2.get(i, j); //R,G,B,(A-transprant)
+                sum += pix1[0] * pix2[0];
+
+            }
+        }
+        return sum / 1000000;
+    }
+    double CompareLogo(Mat logoMat1,Mat logoMat2) {
+
+        double[] pix1, pix2, pix3;
+        double sum = 0.0;
+
+        for (int i = 0; i < Math.min(logoMat1.rows(), logoMat2.rows()); i++) {
+            for (int j = 0; j < Math.min(logoMat1.cols(), logoMat2.cols()); j++) {
+                pix1 = logoMat1.get(i, j); //R,G,B,(A-transprant)
+                pix2 = logoMat2.get(i, j); //R,G,B,(A-transprant)
+                sum += Math.abs(pix1[0] - pix2[0]);
+
+            }
+        }
+
+
+/*
+
+
+        //double i = quad.get(1,1);
+        Mat grays= new Mat(),BGRgray = new Mat();
+        bitmap = Bitmap.createBitmap(quad.cols(), quad.rows(),
+                Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(quad, bitmap);
+
+        Imgproc.cvtColor(quad,grays,Imgproc.COLOR_RGB2GRAY);
+        Bitmap bitmap1 = Bitmap.createBitmap(grays.cols(), grays.rows(),
+                Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(grays, bitmap1);
+
+        Imgproc.cvtColor(quad,BGRgray,Imgproc.COLOR_RGB2BGR);
+        Imgproc.cvtColor(BGRgray,BGRgray,Imgproc.COLOR_BGR2GRAY);
+        Bitmap bitmap2 = Bitmap.createBitmap(BGRgray.cols(), BGRgray.rows(),
+                Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(BGRgray, bitmap2);
+
+        double[] pix1,pix2,pix3,sum12= new double[4],sum23= new double[4];
+        for(int i = 0 ; i < quad.rows() ;i++) {
+            for (int j = 0; j < quad.cols(); j++) {
+                pix1 =  grays.get(i, j); //R,G,B,(A-transprant)
+                pix2 =  quad.get(i, j); //R,G,B,(A-transprant
+                pix3 =  quad.get(i, j); //R,G,B,(A-transprant
+                sum12[0] += pix2[0]*pix3[0];
+                sum12[1] += pix2[1]*pix3[1];
+                sum12[2] += pix2[2]*pix3[2];
+                sum12[3] += pix2[3]*pix3[3];
+            }
+            */
+       return sum/1000000;
+    }
+
+
+
+
     boolean getpage() {
+
 
         ImageView step1 = (ImageView) findViewById(R.id.step1);
         ImageView step2 = (ImageView) findViewById(R.id.step2);
         ImageView step3 = (ImageView) findViewById(R.id.step3);
         ImageView step4 = (ImageView) findViewById(R.id.step4);
-        ImageView step6 = (ImageView) findViewById(R.id.step6);
+        ImageView step5 = (ImageView) findViewById(R.id.step5);
         ImageView step7 = (ImageView) findViewById(R.id.step7);
 
         /*
@@ -282,7 +863,7 @@ public class scanNewBillActivity extends AppCompatActivity {
         background and foreground will be quite distinct from the background and most of
         the area will be occupied by the page:
          */
-
+/*
         Mat samples = new Mat(src.rows() * src.cols(), 3, CvType.CV_32F);
         for (int y = 0; y < src.rows(); y++) {
             for (int x = 0; x < src.cols(); x++) {
@@ -291,8 +872,8 @@ public class scanNewBillActivity extends AppCompatActivity {
                 }
             }
         }
-
-
+*/
+/*
         //Then, we will apply the k-means algorithm as follows:
         int clusterCount = 2;
         Mat labels = new Mat();
@@ -302,7 +883,7 @@ public class scanNewBillActivity extends AppCompatActivity {
                         TermCriteria(TermCriteria.MAX_ITER |
                         TermCriteria.EPS, 10000, 0.0001), attempts,
                 Core.KMEANS_PP_CENTERS, centers);
-
+*/
         /*
         Now, we have the two cluster centers and the labels for each pixel in the original
         image. We will use the two cluster centers to detect which one corresponds to the
@@ -310,7 +891,7 @@ public class scanNewBillActivity extends AppCompatActivity {
         centers and the color pure white. The one which is closer to the color pure white will
         be considered as the foreground:
          */
-
+/*
         double dstCenter0 = calcWhiteDist(centers.get(0,
                 0)[0], centers.get(0, 1)[0], centers.get(0, 2)[0]);
         double dstCenter1 = calcWhiteDist(centers.get(1,
@@ -319,14 +900,13 @@ public class scanNewBillActivity extends AppCompatActivity {
 
         //We need to define two Mat objects that we will use in the next step:
 
-        Mat srcRes = new Mat(src.size(), src.type());
-        Mat srcGray = new Mat();
 
+*/
         /*
         Now, we will perform a segmentation where we will display all the foreground
         pixels as white and all the background pixels as black:
          */
-
+/*
         for (int y = 0; y < src.rows(); y++) {
             for (int x = 0; x < src.cols(); x++) {
                 int cluster_idx = (int) labels.get(x + y * src.cols(), 0)[0];
@@ -342,13 +922,14 @@ public class scanNewBillActivity extends AppCompatActivity {
         Bitmap bit1 = Bitmap.createBitmap(srcRes.cols(), srcRes.rows(),Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(srcRes, bit1);
         step1.setImageBitmap(bit1);
-
+ */
         /*
         Now, we will move on to the next step; that is, detecting contours in this image.
         First, we will apply the Canny edge detector to detect just the edges and then
         apply a contouring algorithm:
         */
-
+        Mat srcRes = new Mat(src.size(), src.type());
+        Mat srcGray = new Mat();
         Imgproc.cvtColor(src, srcGray, Imgproc.COLOR_BGR2GRAY);
 
         // we present the result - grayscale
@@ -356,7 +937,7 @@ public class scanNewBillActivity extends AppCompatActivity {
         Utils.matToBitmap(srcGray, bit2);
         step2.setImageBitmap(bit2);
 
-        Imgproc.Canny(srcGray, srcGray, 50, 150);
+        Imgproc.Canny(srcGray, srcGray, 100, 200);
 
         // we present the result - canny
         Bitmap bit3 = Bitmap.createBitmap(srcGray.cols(), srcGray.rows(),Bitmap.Config.ARGB_8888);
@@ -424,12 +1005,10 @@ public class scanNewBillActivity extends AppCompatActivity {
 
         if(corners.size() != 4){
             errorMsg = "Cannot detect perfect corners";
+
             return false;
-
         }
-
         sortCorners(corners);// sort to 0-top_left , 1-top_right , 2-bottom_, 3-bottom_left
-
 
         double top = Math.sqrt(Math.pow(corners.get(0).x -
                 corners.get(1).x, 2) + Math.pow(corners.get(0).y -
@@ -460,15 +1039,10 @@ public class scanNewBillActivity extends AppCompatActivity {
         Imgproc.warpPerspective(srcOrig, quad, transformation,
                 quad.size());
 
-
-
-
-         bitmap = Bitmap.createBitmap(quad.cols(), quad.rows(),
+        bitmap = Bitmap.createBitmap(quad.cols(), quad.rows(),
                 Bitmap.Config.ARGB_8888);
 
         Utils.matToBitmap(quad, bitmap);
-
-
 
         return true;
 
