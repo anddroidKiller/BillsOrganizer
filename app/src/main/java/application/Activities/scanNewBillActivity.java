@@ -57,9 +57,17 @@ import java.util.Vector;
 import billsorganizer.billsorganizer.R;
 
 public class scanNewBillActivity extends AppCompatActivity {
-
-    static int openCvReady = 0;
-    progressBar pb;
+    String errorMsg;
+    Uri fileUri;
+    final int LOAD_PHOTO = 0, CLICK_PHOTO = 1;
+    Button bClickImage, bLoadImage;
+    Mat srcOrig,src,logo1Mat;
+    Bitmap bitmap;
+    Intent intent;
+    ImageView  logo[] = new ImageView[5];
+    TextView spTextView[] = new TextView[5],dpTextView[] = new TextView[5];
+    int reziseCols = 60,reziseRows = 20,count = 0;
+    static int openCvReady = 0,scaleFactor = 0;
     BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this){
         @Override
         public void onManagerConnected(int status) {
@@ -88,23 +96,6 @@ public class scanNewBillActivity extends AppCompatActivity {
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
     }
-    final private Context mContext = this;
-    Context context = this.getBaseContext();
-    String mCurrentPhotoPath,errorMsg;
-    static final int REQUEST_TAKE_PHOTO = 1,REQUEST_IMAGE_CAPTURE = 1;
-    Uri fileUri;
-    final int LOAD_PHOTO = 0, CLICK_PHOTO = 1;
-    Button bClickImage, bLoadImage,newbClickImage, newbLoadImage;
-    Mat srcOrig,src,logo1Mat,srcMat;
-    static int scaleFactor = 0;
-    Bitmap bitmap;
-    Intent intent;
-    ImageView ivImage, logo[] = new ImageView[5];
-    TextView spTextView[] = new TextView[5],dpTextView[] = new TextView[5];
-    int reziseCols = 60,reziseRows = 20;
-
-
-    static int count = 0;
 
     public boolean hasPermissionInManifest(Context context, String permissionName) {
         final String packageName = context.getPackageName();
@@ -130,7 +121,6 @@ public class scanNewBillActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_img);
 
-
         bClickImage = (Button)findViewById(R.id.bClickImage);
         bLoadImage = (Button)findViewById(R.id.bLoadImage);
         intent = new Intent(this.getBaseContext(),ScanActivity.class);
@@ -152,8 +142,6 @@ public class scanNewBillActivity extends AppCompatActivity {
         dpTextView[3] = (TextView)findViewById(R.id.dpVal4);
         dpTextView[4] = (TextView)findViewById(R.id.dpVal5);
 
-
-
         bLoadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -170,9 +158,6 @@ public class scanNewBillActivity extends AppCompatActivity {
         bClickImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OutputStream output;
-
-                boolean i = hasPermissionInManifest(scanNewBillActivity.this,"ACTION_IMAGE_CAPTURE");
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 errorMsg = null;
                 File filePath = Environment.getExternalStorageDirectory();
@@ -180,12 +165,10 @@ public class scanNewBillActivity extends AppCompatActivity {
                 imagesFolder.mkdirs();
                 File image = new File(imagesFolder, "image_10.jpg");
                 fileUri = Uri.fromFile(image);
-
-
-               Log.d("LensActivity", "File URI = " + fileUri.toString());
-               intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-                // start the image capture Intent
-               startActivityForResult(intent, CLICK_PHOTO);
+                Log.d("LensActivity", "File URI = " + fileUri.toString());
+                 intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+                    // start the image capture Intent
+                  startActivityForResult(intent, CLICK_PHOTO);
 
             }
         });
@@ -722,7 +705,6 @@ public class scanNewBillActivity extends AppCompatActivity {
         Mat quad = Mat.zeros(new Size(Math.max(top, bottom),
                 Math.max(left, right)), CvType.CV_8UC3);
 
-
         ArrayList<Point> result_pts = new ArrayList<Point>();
         result_pts.add(new Point(0, 0));
         result_pts.add(new Point(quad.cols(), 0));
@@ -733,31 +715,15 @@ public class scanNewBillActivity extends AppCompatActivity {
         Mat resultPts = Converters.vector_Point2f_to_Mat(result_pts);
         Mat transformation = Imgproc.getPerspectiveTransform(cornerPts,
                 resultPts);
+
         Imgproc.warpPerspective(srcOrig, quad, transformation,
                 quad.size());
 
         bitmap = Bitmap.createBitmap(quad.cols(), quad.rows(),
                 Bitmap.Config.ARGB_8888);
-
         Utils.matToBitmap(quad, bitmap);
-
         return true;
-
-
-        /*
-        Imgproc.drawMarker(drawing,corners.get(0),new Scalar(0,0,255),10,10,10,10);
-        Imgproc.drawMarker(drawing,corners.get(1),new Scalar(0,25,255),10,10,10,10);
-        Imgproc.drawMarker(drawing,corners.get(2),new Scalar(0,0,255),10,10,10,10);
-        Imgproc.drawMarker(drawing,corners.get(4),new Scalar(0,0,255),10,10,10,10);
-        Imgproc.circle(drawing,corners.get(0),22,new Scalar(50));
-        Imgproc.circle(drawing,corners.get(1),22,new Scalar(100));
-        Imgproc.circle(drawing,corners.get(2),22,new Scalar(150));
-        Imgproc.circle(drawing,corners.get(3),22,new Scalar(200));
-        Bitmap bitmap1 = Bitmap.createBitmap(drawing.cols(), drawing.rows(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(drawing, bitmap1);
-*/
     }
-
     private static int calcScaleFactor(int rows, int cols){
         int idealRow, idealCol;
         if(rows<cols){
@@ -774,7 +740,6 @@ public class scanNewBillActivity extends AppCompatActivity {
             return val;
         }
     }
-
     static void sortCorners(ArrayList<Point> corners) {
         ArrayList<Point> top, bottom;
         top = new ArrayList<Point>();
@@ -816,7 +781,6 @@ public class scanNewBillActivity extends AppCompatActivity {
 
         }
     }
-
     static boolean exists(ArrayList<Point> corners, Point pt){
         for(int i=0; i<corners.size(); i++){
             if(Math.sqrt(Math.pow(corners.get(i).x-pt.x,
