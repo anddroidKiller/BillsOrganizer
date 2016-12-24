@@ -91,7 +91,6 @@ public class scanNewBillActivity extends AppCompatActivity implements IScanner  
     fragmentTransaction.addToBackStack(ScanFragment.class.toString());
     fragmentTransaction.commit();
 }
-
     
     @Override
     public void onScanFinish(Uri uri) {
