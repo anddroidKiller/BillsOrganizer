@@ -66,10 +66,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="application.Activities.CropLogo"
-            android:exported="true">
-
-        </activity>
 
         <activity android:name="com.scanlibrary.ScanActivity">
 

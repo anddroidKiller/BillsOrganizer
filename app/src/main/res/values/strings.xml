@@ -1,6 +1,9 @@
 <resources>
     <!--Application Constants-->
 
+
+
+
     <string name="app_name">Bills Organizer</string>
     <string name="noConnection">Check Internet connection please...</string>
     <string name="example">Example</string>
@@ -48,6 +51,16 @@
     <string name="amountbetween">Amount should be between 0 to 10000</string>
     <string name="error">Error!</string>
     <string name="newbillwasaddedsucc">A new bill was added succesfully!</string>
+
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="scanning">Scanning</string>
+    <string name="lookinglogoMatch">Looking for logo matching..</string>
+    <string name="done">Done</string>
+    <string name="scan">Scan</string>
+    <string name="cantCrop">Cant crop the image, change the points</string>
+    <string name="ok">Ok</string>
 
 
 </resources>

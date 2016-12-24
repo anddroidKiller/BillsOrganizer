@@ -313,10 +313,6 @@ public class insertNewBillActivity extends ActionBarActivity {
 
                 params.put(Configuration.KEY_FROM_DATE, bill.getDate_To_Pay());
                 params.put(Configuration.KEY_DATE_TO_PAY,bill.getDate_To_Pay());
-             // params.put(Configuration,bill);
-               // params.put(Configuration,bill);
-              //  params.put(Configuration,bill);
-            //    params.put(Configuration,bill);
 
                 //returning parameter
                 return params;
